@@ -6,7 +6,7 @@ var Player = function( game, options ) {
   // Default options
   this.maxVelocity = 150;
   this.accelRate   = 150;
-  this.jumpHeight  = 25;
+  this.jumpHeight  = 75;
   this.jumpRate    = 1500;
 
   // Custom options
@@ -29,7 +29,7 @@ Player.prototype = {
     if ( typeof startPos === 'undefined') {
       startPos = {
         x: 0
-      , y: game.world.height - 48
+      , y: 0
       };
     }
 

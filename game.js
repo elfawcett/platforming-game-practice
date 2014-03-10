@@ -23,8 +23,8 @@ var
 function preload() {
 
   // Game assets
-  game.load.tilemap('tilemap'    , 'assets/tilemaps/tilemap.json', null, Phaser.Tilemap.TILED_JSON );
-  game.load.image(  'ground' , 'assets/tilemaps/ground.png');
+  game.load.tilemap('level1'    , 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON );
+  game.load.image(  'ground' , 'assets/tilesets/ground.png');
 
   // Player
   var playerOneOptions = {
@@ -46,18 +46,18 @@ function create() {
   
 
   // Create players
-  player.create();
-  playerTwo.create({ x: 32, y: game.world.height - 48 });
+  player.create({ x: 16, y: 0 });
+  playerTwo.create({ x: 32, y: 0 });
 
   // Setup tilemaps
-  map = game.add.tilemap('tilemap');
+  map = game.add.tilemap('level1');
   map.addTilesetImage('ground');
   map.setCollisionByExclusion([]);
 
   // Setup layers
-  // level1 = map.createLayer('level1');
-  // level1.resizeWorld();
-  // level1.debug = true;
+  layer = map.createLayer('level1');
+  layer.resizeWorld();
+  layer.debug = true;
 
   // Readjust game physics
   game.physics.setBoundsToWorld();
@@ -76,21 +76,22 @@ function create() {
   wasdJump = game.input.keyboard.addKey( Phaser.Keyboard.SPACEBAR );
 
   // Set initial camera follow
-  // game.camera.follow( player );
+  game.camera.follow( player.sprite );
+
 }
 
 function update() {
   // Collisions
-  game.physics.collide( player, level1 );
-  game.physics.collide( playerTwo, level1 );
+  game.physics.collide( player.sprite, layer );
+  game.physics.collide( playerTwo.sprite, layer );
 
   // Update camera follow
-  // if ( player.x > playerTwo.x ) {
-  //   game.camera.follow( player );
-  // }
-  // else if ( playerTwo.x > player.x ) {
-  //   game.camera.follow( playerTwo );
-  // }
+  if ( player.sprite.x > playerTwo.sprite.x ) {
+    game.camera.follow( player.sprite );
+  }
+  else if ( playerTwo.sprite.x > player.sprite.x ) {
+    game.camera.follow( playerTwo.sprite );
+  }
   player.update({ cursors: wasdCursors, jump: wasdJump });
   playerTwo.update({ cursors: cursors, jump: jumpButton });
 }
