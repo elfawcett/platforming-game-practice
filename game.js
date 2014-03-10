@@ -42,12 +42,7 @@ function preload() {
 
 function create() {
   game.stage.backgroundColor = '#00ccee';
-  game.physics.gravity.y = 1500;
-  
-
-  // Create players
-  player.create({ x: 16, y: 0 });
-  playerTwo.create({ x: 32, y: 0 });
+  game.physics.gravity.y = 100;
 
   // Setup tilemaps
   map = game.add.tilemap('level1');
@@ -57,11 +52,14 @@ function create() {
   // Setup layers
   layer = map.createLayer('level1');
   layer.resizeWorld();
-  layer.debug = true;
+  // layer.debug = true;
 
   // Readjust game physics
   game.physics.setBoundsToWorld();
 
+  // Create players
+  player.create();
+  playerTwo.create();
 
   // Setup game input
   cursors    = game.input.keyboard.createCursorKeys();

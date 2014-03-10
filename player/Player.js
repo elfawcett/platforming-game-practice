@@ -7,7 +7,11 @@ var Player = function( game, options ) {
   this.maxVelocity = 150;
   this.accelRate   = 150;
   this.jumpHeight  = 75;
-  this.jumpRate    = 1500;
+  this.jumpRate    = 100;
+  this.hangPct     = 0.85;
+  this.hangTime    = 5;
+  this.jumpDecel   = 0.25;
+  this.fallRate    = 0.25 ;
 
   // Custom options
   if ( typeof options !== 'undefined') {
@@ -28,8 +32,8 @@ Player.prototype = {
 , create  : function( startPos ) {
     if ( typeof startPos === 'undefined') {
       startPos = {
-        x: 0
-      , y: 0
+        x: 16
+      , y: game.world.height - 48
       };
     }
 
@@ -50,26 +54,22 @@ Player.prototype = {
 
     // Prevent exceeding jumpHeight
     if ( this.isJumping ) {
-      if (-( this.sprite.body.y - this.jumpStart ) > this.jumpHeight ) {
+      // Establish jump delta
+      var jumpDelta = -( this.sprite.body.y - this.jumpStart );
+      if ( jumpDelta > this.jumpHeight ) {
         // this.sprite.body.velocity.y = -this.sprite.body.velocity.y;
-        this.sprite.body.velocity.y = 0;
+        console.log(this.sprite.body.velocity.y, this.sprite.body.velocity.y * this.fallRate )
+        this.sprite.body.velocity.y =  -( this.sprite.body.velocity.y * this.fallRate );
+        console.log(this.sprite.body.velocity.y)
         this.isJumping = false;
       }
     }
 
     // Left movements
     if ( controls.cursors.left.isDown ) {
-      // Increase velocity up to max at accelRate
-      // this.sprite.body.acceleration.x -= this.accelRate;
-      // if ( -this.sprite.body.acceleration.x > this.maxVelocity ) {
-      //   this.sprite.body.acceleration.x = -this.maxVelocity;
-      // }
-
       this.sprite.body.velocity.x = -this.accelRate;
-      // Stop acceleration and play animation once
+      
       if ( this.facing != 'left') {
-        // this.sprite.body.acceleration.x += this.accelRate * 5;
-
         this.sprite.animations.play('left');
         this.facing = 'left';
       }
@@ -77,15 +77,9 @@ Player.prototype = {
 
     // Right movement
     else if ( controls.cursors.right.isDown ) {
-      // this.sprite.body.acceleration.x += this.accelRate;
-      // if ( this.sprite.body.acceleration.x > this.maxVelocity ) {
-      //   this.sprite.body.acceleration.x = this.maxVelocity;
-      // }
-      
       this.sprite.body.velocity.x = this.accelRate;
-      if ( this.facing != 'right') {
-        // this.sprite.body.acceleration.x -= this.accelRate * 2;
 
+      if ( this.facing != 'right') {
         this.sprite.animations.play('right');
         this.facing = 'right';
       }
@@ -94,12 +88,6 @@ Player.prototype = {
     // Idle
     else {
       if ( this.facing != 'idle') {
-        // if ( this.sprite.body.acceleration.x > 0 ) {
-        //   this.sprite.body.acceleration.x -= 500;
-        // } else {
-        //   this.sprite.body.acceleration.x += this.accelRate * 2;
-        // }
-
         this.sprite.animations.play('idle');
         this.facing = 'idle';
       }
