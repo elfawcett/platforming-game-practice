@@ -4,14 +4,16 @@ var Player = function( game, options ) {
   this.sprite  = null;
 
   // Default options
+  this.startPos    = { x: 0, y: 0 };
   this.maxVelocity = 150;
   this.accelRate   = 150;
   this.jumpHeight  = 75;
-  this.jumpRate    = 100;
+  this.jumpRate    = 500;
   this.hangPct     = 0.85;
   this.hangTime    = 5;
   this.jumpDecel   = 0.25;
   this.fallRate    = 0.25 ;
+  this.runnerMode  = false;
 
   // Custom options
   if ( typeof options !== 'undefined') {
@@ -31,16 +33,13 @@ Player.prototype = {
 
 , create  : function( startPos ) {
     if ( typeof startPos === 'undefined') {
-      startPos = {
-        x: 16
-      , y: game.world.height - 48
-      };
+      startPos = this.startPos;
     }
 
     this.sprite = this.game.add.sprite( startPos.x, startPos.y, 'player');
 
     // Physics
-    this.sprite.body.collideWorldBounds = true;
+    this.sprite.body.collideWorldBounds = false;
 
     // Animations
     //                    .add( name, frames, framerate, loop )
@@ -50,7 +49,11 @@ Player.prototype = {
   }
 , update  : function( controls ) {
     // Reset X motion
-    this.sprite.body.velocity.x = 0;
+    if ( this.runnerMode ) {
+      this.sprite.body.velocity.x = 100;
+    } else {
+      this.sprite.body.velocity.x = 0;
+    }
 
     // Prevent exceeding jumpHeight
     if ( this.isJumping ) {
@@ -58,12 +61,14 @@ Player.prototype = {
       var jumpDelta = -( this.sprite.body.y - this.jumpStart );
       if ( jumpDelta > this.jumpHeight ) {
         // this.sprite.body.velocity.y = -this.sprite.body.velocity.y;
-        console.log(this.sprite.body.velocity.y, this.sprite.body.velocity.y * this.fallRate )
         this.sprite.body.velocity.y =  -( this.sprite.body.velocity.y * this.fallRate );
-        console.log(this.sprite.body.velocity.y)
         this.isJumping = false;
       }
     }
+
+    // Reset jump blocker when space is released
+    if ( controls.jump.isUp ) this.blockJumping = false;
+
 
     // Left movements
     if ( controls.cursors.left.isDown ) {
@@ -94,12 +99,19 @@ Player.prototype = {
     }
 
     // Jumping
-    if ( controls.jump.isDown && this.sprite.body.onFloor() ) {
+    if ( !this.blockJumping && controls.jump.isDown && this.sprite.body.onFloor() ) {
       this.jumpStart = this.sprite.body.y;
       this.isJumping = true;
+      this.blockJumping = true;
 
       this.sprite.body.velocity.y = -this.jumpRate;
     }
+
+    // Toggle endless runner mode
+    controls.runnerModeToggle.onDown.add( function() {
+      this.runnerMode = ( this.runnerMode  === true ) ? false : true;
+    }, this );
+
 
   }
 

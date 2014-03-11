@@ -1,4 +1,4 @@
-var game = new Phaser.Game( 320, 240, Phaser.AUTO, '', {
+var game = new Phaser.Game( 480, 240, Phaser.AUTO, '', {
   preload : preload
 , create  : create
 , update  : update
@@ -35,14 +35,14 @@ function preload() {
   player.preload();
 
   // Player two
-  playerTwo = new Player( game );
-  playerTwo.preload();
+  // playerTwo = new Player( game );
+  // playerTwo.preload();
 
 }
 
 function create() {
   game.stage.backgroundColor = '#00ccee';
-  game.physics.gravity.y = 100;
+  game.physics.gravity.y = 500;
 
   // Setup tilemaps
   map = game.add.tilemap('level1');
@@ -59,7 +59,7 @@ function create() {
 
   // Create players
   player.create();
-  playerTwo.create();
+  // playerTwo.create();
 
   // Setup game input
   cursors    = game.input.keyboard.createCursorKeys();
@@ -73,6 +73,8 @@ function create() {
   };
   wasdJump = game.input.keyboard.addKey( Phaser.Keyboard.SPACEBAR );
 
+  runnerModeToggle = game.input.keyboard.addKey( Phaser.Keyboard.F3 );
+
   // Set initial camera follow
   game.camera.follow( player.sprite );
 
@@ -81,20 +83,14 @@ function create() {
 function update() {
   // Collisions
   game.physics.collide( player.sprite, layer );
-  game.physics.collide( playerTwo.sprite, layer );
+  // game.physics.collide( playerTwo.sprite, layer );
 
-  // Update camera follow
-  if ( player.sprite.x > playerTwo.sprite.x ) {
-    game.camera.follow( player.sprite );
-  }
-  else if ( playerTwo.sprite.x > player.sprite.x ) {
-    game.camera.follow( playerTwo.sprite );
-  }
-  player.update({ cursors: wasdCursors, jump: wasdJump });
-  playerTwo.update({ cursors: cursors, jump: jumpButton });
+  layer.scrollX++;
+
+  player.update({ cursors: wasdCursors, jump: wasdJump, runnerModeToggle: runnerModeToggle });
 }
 
 function render() {
   player.render();
-  playerTwo.render();
+  // playerTwo.render();
 }
