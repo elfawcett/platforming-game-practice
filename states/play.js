@@ -99,7 +99,7 @@ var state_play = {
 
     // Check for player death
     if ( !player.sprite.inWorld ) {
-      return restartGame(); // Return false to break the update loop
+      gameOver(); // Return false to break the update loop
     }
 
     player.update({ cursors: wasdCursors, jump: wasdJump, runnerModeToggle: runnerModeToggle });
