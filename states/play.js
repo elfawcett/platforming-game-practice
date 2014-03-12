@@ -64,10 +64,9 @@ var state_play = {
 
     // Create some groups
     staticPlatforms = this.game.add.group();
-    var ground = staticPlatforms.create( 0, this.game.world.height - 16, 'ground')
-    ground.scale.setTo( 20, 1 );
+    var ground = staticPlatforms.create( 100, this.game.world.height - 16, 'ground')
+    ground.scale.setTo( 5, 1 );
     ground.body.immovable = true;
-    ground.body.blocked.up = true;
 
     // Readjust game physics
     this.game.physics.setBoundsToWorld();
