@@ -20,6 +20,7 @@
     
 var player;
 var playerTwo;
+var playerGroup;
 
 var map;
 var level1;
@@ -35,7 +36,7 @@ var state_play = {
     this.game.stage.backgroundColor = '#00ccee';
 
     // Game assets
-    this.game.load.tilemap('level1'    , 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON );
+    this.game.load.tilemap('level1' , 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON );
     this.game.load.image(  'ground' , 'assets/tilesets/ground.png');
 
     // Player
@@ -54,7 +55,7 @@ var state_play = {
 
 , create: function() {
     
-    this.game.physics.gravity.y = 500;
+    // this.game.physics.gravity.y = 500;
 
     // Setup tilemaps
     map = this.game.add.tilemap('level1');

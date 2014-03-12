@@ -4,6 +4,7 @@ var Player = function( game, options ) {
   this.sprite  = null;
 
   // Default options
+  this.gravity     = 500;
   this.startPos    = { x: 0, y: 0 };
   this.maxVelocity = 150;
   this.accelRate   = 150;
@@ -27,11 +28,12 @@ var Player = function( game, options ) {
 };
 
 Player.prototype = {
-  preload : function() {
+  preload: function() {
     this.game.load.spritesheet('player', 'player/assets/player.png', 16, 32 );
   }
 
-, create  : function( startPos ) {
+, create: function( startPos ) {
+    // Starting position
     if ( typeof startPos === 'undefined') {
       startPos = this.startPos;
     }
@@ -39,6 +41,7 @@ Player.prototype = {
     this.sprite = this.game.add.sprite( startPos.x, startPos.y, 'player');
 
     // Physics
+    this.sprite.body.gravity.y = this.gravity;
     this.sprite.body.collideWorldBounds = false;
 
     // Animations
@@ -47,7 +50,7 @@ Player.prototype = {
     this.sprite.animations.add('left', [ 2 ], 10, true );
     this.sprite.animations.add('right', [ 1 ], 10, true );
   }
-, update  : function( controls ) {
+, update: function( controls ) {
     // Reset X motion
     if ( this.runnerMode ) {
       this.sprite.body.velocity.x = 100;
@@ -70,41 +73,24 @@ Player.prototype = {
     if ( controls.jump.isUp ) this.blockJumping = false;
 
 
-    // Left movements
+    // Left movement
     if ( controls.cursors.left.isDown ) {
-      this.sprite.body.velocity.x = -this.accelRate;
-      
-      if ( this.facing != 'left') {
-        this.sprite.animations.play('left');
-        this.facing = 'left';
-      }
+      this.moveLeft();
     }
 
     // Right movement
     else if ( controls.cursors.right.isDown ) {
-      this.sprite.body.velocity.x = this.accelRate;
-
-      if ( this.facing != 'right') {
-        this.sprite.animations.play('right');
-        this.facing = 'right';
-      }
+      this.moveRight();
     }
 
     // Idle
     else {
-      if ( this.facing != 'idle') {
-        this.sprite.animations.play('idle');
-        this.facing = 'idle';
-      }
+      this.idle();
     }
 
     // Jumping
     if ( !this.blockJumping && controls.jump.isDown && this.sprite.body.onFloor() ) {
-      this.jumpStart = this.sprite.body.y;
-      this.isJumping = true;
-      this.blockJumping = true;
-
-      this.sprite.body.velocity.y = -this.jumpRate;
+      this.jump()
     }
 
     // Toggle endless runner mode
@@ -115,9 +101,46 @@ Player.prototype = {
 
   }
 
-, render  : function() {
+, render: function() {
     if ( this.debug ) {
       game.debug.renderPhysicsBody( this.sprite.body );
     }
   }
+
+/*==========  Player actions  ==========*/
+, idle: function() {
+    this.sprite.body.velocity.x = 0;
+
+    if ( this.facing != 'idle') {
+      this.sprite.animations.play('idle');
+      this.facing = 'idle';
+    }
+  }
+
+, moveLeft: function() {
+    this.sprite.body.velocity.x = -this.accelRate;
+
+    if ( this.facing != 'left') {
+      this.sprite.animations.play('left');
+      this.facing = 'left';
+    }
+  }
+
+, moveRight: function() {
+    this.sprite.body.velocity.x = this.accelRate;
+
+    if ( this.facing != 'right') {
+      this.sprite.animations.play('right');
+      this.facing = 'right';
+    }
+  }
+
+, jump: function() {
+    this.jumpStart    = this.sprite.body.y;
+    this.isJumping    = true;
+    this.blockJumping = true;
+
+    this.sprite.body.velocity.y = -this.jumpRate;
+  }
+
 };
