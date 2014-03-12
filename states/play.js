@@ -2,6 +2,22 @@
 =            Play State            =
 ==================================*/
 
+/**
+
+  TODO:
+  - Should probably move all of these vars into state_play
+    properties of state_play
+
+    preload: function() {
+      this.player = new Player()
+    }
+
+    create: function() {
+      this.map = this.game.add.tilemap()
+    }
+
+**/
+    
 var player;
 var playerTwo;
 
@@ -16,6 +32,7 @@ var wasdJump;
 
 var state_play = {
   preload: function() {
+    this.game.stage.backgroundColor = '#00ccee';
 
     // Game assets
     this.game.load.tilemap('level1'    , 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON );
@@ -36,7 +53,7 @@ var state_play = {
   }
 
 , create: function() {
-    this.game.stage.backgroundColor = '#00ccee';
+    
     this.game.physics.gravity.y = 500;
 
     // Setup tilemaps
@@ -82,7 +99,7 @@ var state_play = {
 
     // Check for player death
     if ( !player.sprite.inWorld ) {
-      return this.restartGame(); // Return false to break the update loop
+      return restartGame(); // Return false to break the update loop
     }
 
     player.update({ cursors: wasdCursors, jump: wasdJump, runnerModeToggle: runnerModeToggle });
@@ -91,18 +108,6 @@ var state_play = {
 , render: function() {
     player.render();
     // playerTwo.render();
-  }
-
-  /*==========  User Functions  ==========*/
-, restartGame: function() {
-    // Do everything necessary to restart the game, reset score, positioning, etc.
-    // player.sprite.kill();
-
-    // player.create();
-
-    this.game.state.start('play');
-    // Return false to the function calling restartGame() --usually update()
-    return false;
   }
 
 };
