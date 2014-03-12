@@ -22,6 +22,8 @@ var player;
 var playerTwo;
 var playerGroup;
 
+var staticPlatforms;
+
 var map;
 var level1;
 var level2;
@@ -41,22 +43,15 @@ var state_play = {
 
     // Player
     var playerOneOptions = {
-      maxVelocity : 1000
-    , accelRate   : 250
+    //   maxVelocity : 1000
+    // , accelRate   : 250
     };
     player = new Player( game, playerOneOptions );
     player.preload();
 
-    // Player two
-    // playerTwo = new Player( game );
-    // playerTwo.preload();
-
   }
 
 , create: function() {
-    
-    // this.game.physics.gravity.y = 500;
-
     // Setup tilemaps
     map = this.game.add.tilemap('level1');
     map.addTilesetImage('ground');
@@ -67,12 +62,18 @@ var state_play = {
     layer.resizeWorld();
     // layer.debug = true;
 
+    // Create some groups
+    staticPlatforms = this.game.add.group();
+    var ground = staticPlatforms.create( 0, this.game.world.height - 16, 'ground')
+    ground.scale.setTo( 20, 1 );
+    ground.body.immovable = true;
+    ground.body.blocked.up = true;
+
     // Readjust game physics
     this.game.physics.setBoundsToWorld();
 
     // Create players
     player.create();
-    // playerTwo.create();
 
     // Setup game input
     cursors    = this.game.input.keyboard.createCursorKeys();
@@ -96,11 +97,11 @@ var state_play = {
 , update: function() {
     // Collisions
     this.game.physics.collide( player.sprite, layer );
-    // this.game.physics.collide( playerTwo.sprite, layer );
+    this.game.physics.collide( player.sprite, staticPlatforms );
 
     // Check for player death
     if ( !player.sprite.inWorld ) {
-      gameOver(); // Return false to break the update loop
+      gameOver();
     }
 
     player.update({ cursors: wasdCursors, jump: wasdJump, runnerModeToggle: runnerModeToggle });
@@ -108,7 +109,6 @@ var state_play = {
 
 , render: function() {
     player.render();
-    // playerTwo.render();
   }
 
 };
