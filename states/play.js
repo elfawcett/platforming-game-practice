@@ -55,24 +55,26 @@ var state_play = {
     // Setup tilemaps
     map = this.game.add.tilemap('level1');
     map.addTilesetImage('ground');
-    map.setCollisionByExclusion([]);
+    map.setCollisionByExclusion([ 12 ]);
 
     // Setup layers
     layer = map.createLayer('level1');
     layer.resizeWorld();
     // layer.debug = true;
 
+    // Move
+
     // Create some groups
-    staticPlatforms = this.game.add.group();
-    var ground = staticPlatforms.create( 100, this.game.world.height - 16, 'ground')
-    ground.scale.setTo( 5, 1 );
-    ground.body.immovable = true;
+    // staticPlatforms = this.game.add.group();
+    // var ground = staticPlatforms.create( 100, this.game.world.height - 16, 'ground')
+    // ground.scale.setTo( 30, 1 );
+    // ground.body.immovable = true;
 
     // Readjust game physics
     this.game.physics.setBoundsToWorld();
 
     // Create players
-    player.create();
+    player.create({ x: 64, y: map.heightInPixels - 64 });
 
     // Setup game input
     cursors    = this.game.input.keyboard.createCursorKeys();
@@ -96,7 +98,7 @@ var state_play = {
 , update: function() {
     // Collisions
     this.game.physics.collide( player.sprite, layer );
-    this.game.physics.collide( player.sprite, staticPlatforms );
+    // this.game.physics.collide( player.sprite, staticPlatforms );//, player.idle( true ));
 
     // Check for player death
     if ( !player.sprite.inWorld ) {

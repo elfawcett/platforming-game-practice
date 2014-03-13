@@ -4,25 +4,26 @@ var Player = function( game, options ) {
   this.sprite  = null;
 
   // Default options
-  this.collideWorld = false;
-  this.gravity      = 500;
-  this.startPos     = { x: 0, y: 0 };
-  // this.linearDamping = 0.2;
+  this.collideWorld  = false;
+  this.gravity       = 500;
+  this.startPos      = { x: 0, y: 0 };
   
-  this.runnerMode   = false;
+  this.runnerMode    = false;
 
-  this.jumpHeight   = 75;
-  this.jumpVelocity     = 500;
-  this.fallRate     = 0.25 ;
 
-  
-  
+  this.jumpHeight    = 75;
+  this.jumpVelocity  = 500;
+  this.fallRate      = 0.25;
 
-  this.maxSpeed = 200;
-  this.currentSpeed = 0;
-  this.accelRate    = 10; // 5 isn't working correctly
-  this.accelFactor = 0.2;
-  this.decelRate    = 10;
+  this.maxSpeed      = 200;
+  this.currentSpeed  = 0;
+  this.accelRate     = 5;
+  this.decelRate     = 17;    // Lower adds more "slide"
+  this.turnRate      = 40;    // Lower changes direction faster
+  this.touchingWall  = false;
+
+  // Debugging
+  this.debug         = true;
 
 
 
@@ -53,7 +54,6 @@ Player.prototype = {
     // Physics
     this.sprite.body.gravity.y = this.gravity;
     this.sprite.body.collideWorldBounds = this.collideWorld;
-    this.sprite.body.linearDamping = this.linearDamping;
 
     // Animations
     //                    .add( name, frames, framerate, loop )
@@ -64,6 +64,7 @@ Player.prototype = {
 , update: function( controls ) {
     // Set speed
     this.sprite.body.velocity.x = this.currentSpeed;
+
 
     // Prevent exceeding jumpHeight
 
@@ -77,7 +78,9 @@ Player.prototype = {
       var jumpDelta = -( this.sprite.body.y - this.jumpStart );
       if ( jumpDelta > this.jumpHeight ) {
         this.sprite.body.velocity.y =  -( this.sprite.body.velocity.y * this.fallRate );
-        this.isJumping = false;
+        if ( this.sprite.body.onFloor() || this.sprite.body.touching.down ) {
+          this.isJumping = false;
+        }
       }
     }
 
@@ -87,10 +90,18 @@ Player.prototype = {
 
     // Movement
     if ( controls.cursors.left.isDown ) {
-      this.moveLeft();
+      if ( !this.sprite.body.blocked.left ) {
+        this.moveLeft();
+      } else {
+        this.stopMovement();
+      }
     }
     else if ( controls.cursors.right.isDown ) {
-      this.moveRight();
+      if ( !this.sprite.body.blocked.right ) {
+        this.moveRight();
+      } else {
+        this.stopMovement();
+      }
     }
     else {
       this.idle();
@@ -116,16 +127,26 @@ Player.prototype = {
     if ( this.debug ) {
       game.debug.renderPhysicsBody( this.sprite.body );
       game.debug.renderText('Current speed: ' + this.currentSpeed, 32, 32 );
+      game.debug.renderText('Blocked left: ' + this.sprite.body.blocked.left, 32, 48 );
+      game.debug.renderText('Blocked right: ' + this.sprite.body.blocked.right, 32, 64 );
     }
   }
 
 /*==========  Player actions  ==========*/
-, idle: function() {
+, stopMovement: function() {
+    this.currentSpeed = 0;
+  }
+
+, idle: function( immediate ) {
+    if ( immediate ) this.currentSpeed = 0;
+
     /* Slows down currentSpeed to zero */
     if ( this.currentSpeed > 0 ) {
       this.currentSpeed -= this.decelRate;
+      this.currentSpeed = ( this.currentSpeed < 0 ) ? 0 : this.currentSpeed;
     } else if ( this.currentSpeed < 0 ) {
       this.currentSpeed += this.decelRate;
+      this.currentSpeed = ( this.currentSpeed > 0 ) ? 0 : this.currentSpeed;
     } else {
       this.currentSpeed = 0;
     }
@@ -139,12 +160,19 @@ Player.prototype = {
 
 , moveLeft: function() {
     /* Decreases currentSpeed */
+    // If starting from the opposite direction, take into account turn rate
+    if ( this.currentSpeed > 0 && this.currentSpeed > this.turnRate ) {
+      this.currentSpeed = this.turnRate;
+    }
 
     this.currentSpeed -= this.accelRate;
+
+    // Speed limit
     if ( -this.currentSpeed > this.maxSpeed ) {
       this.currentSpeed = -this.maxSpeed;
     }
 
+    // Animation
     if ( this.facing != 'left') {
       this.sprite.animations.play('left');
       this.facing = 'left';
@@ -153,11 +181,19 @@ Player.prototype = {
 
 , moveRight: function() {
     /* Increases currentSpeed */
+    // If starting from the opposite direction, take into account turn rate
+    if ( this.currentSpeed < 0 && -this.currentSpeed > this.turnRate ) {
+      this.currentSpeed = -this.turnRate;
+    }
+
     this.currentSpeed += this.accelRate;
+
+    // Speed limit
     if ( this.currentSpeed > this.maxSpeed ) {
       this.currentSpeed = this.maxSpeed;
     }
 
+    // Animation
     if ( this.facing != 'right') {
       this.sprite.animations.play('right');
       this.facing = 'right';

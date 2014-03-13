@@ -1,4 +1,4 @@
-var game = new Phaser.Game( 480, 240, Phaser.AUTO, '');
+var game = new Phaser.Game( 320, 240, Phaser.AUTO, '');
 
 var startGame = function() {
   game.state.start('play');
